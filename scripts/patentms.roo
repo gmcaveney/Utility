@@ -7,17 +7,23 @@ enum constant --name Downloaded
 enum constant --name Parsed
 
 entity jpa --class ~.model.PatentInformation --testAutomatically --equals --identifierField id
-field string --fieldName abstractBody
+#field string --fieldName abstractBody
+#field file --fieldName abstractBody --contentType java.lang.String
+field file --fieldName abstractBody --contentType ZIP
 field string --fieldName assignee --sizeMax 255
 field date --fieldName filed --type java.util.Date
 # field reference --fieldName patent --type ~.model.Patent
+
+entity jpa --class ~.model.PatentBody --testAutomatically --equals --identifierField id
+field file --fieldName body --contentType ZIP
 
 entity jpa --class ~.model.Patent --testAutomatically --equals --identifierField id
 field string --fieldName uspat --notNull --sizeMax 20
 field enum --fieldName status --type ~.model.PatentStatus --notNull
 field set --fieldName cited --type ~.model.Patent --cardinality MANY_TO_MANY
 # field set --fieldName information --type ~.model.PatentInformation --cardinality ONE_TO_ONE --mappedBy patent 
-field reference --fieldName information --type ~.model.PatentInformation
+field reference --fieldName information --type ~.model.PatentInformation --cardinality ONE_TO_ONE 
+field reference --fieldName body --type ~.model.PatentBody --cardinality ONE_TO_ONE 
 
 web mvc setup
 web mvc all --package ~.web
