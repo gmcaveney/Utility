@@ -1,0 +1,16 @@
+project --topLevelPackage com.incremensa.metasearch
+
+dependency add --groupId com.incremensa.metasearch --artifactId metasearch --version 0.1.0.BUILD-SNAPSHOT
+
+web mvc setup
+web mvc scaffold --backingType ~.model.Goal --class ~.web.GoalController
+web mvc scaffold --backingType ~.model.PatentSummary --class ~.web.PatentSummaryController
+
+logging setup --level INFO
+
+# web mvc all --package ~.web
+
+# selenium test --controller ~.web.MetaSearchController
+# perform tests
+perform package
+perform eclipse
