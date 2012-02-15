@@ -1,0 +1,66 @@
+project --topLevelPackage com.incremensa.metasearch --packaging POM
+
+module create --moduleName core --topLevelPackage com.incremensa.metasearch
+
+jpa setup --provider HIBERNATE --database MYSQL --databaseName mssingle --userName root --password alaska
+
+enum type --class ~.model.GoalSearchType
+enum constant --name Google
+enum constant --name PatentTitle
+enum constant --name PatentAbstract
+
+enum type --class ~.model.PatentStatus
+enum constant --name Pending
+enum constant --name Downloaded
+enum constant --name Parsed
+
+entity jpa --class ~.model.GoalSearch --testAutomatically --equals --identifierField id
+field string --fieldName searchString --sizeMax 4012
+field enum --fieldName searchType --type ~.model.GoalSearchType --notNull
+
+entity jpa --class ~.model.Goal --testAutomatically --equals --identifierField id
+field string --fieldName name --sizeMax 255
+# field set --fieldName searches --type ~.model.GoalSearch --cardinality MANY_TO_MANY
+field date --fieldName created --type java.util.Date
+field date --fieldName executed --type java.util.Date
+
+field reference --class ~.model.GoalSearch --fieldName owner --type ~.model.Goal
+field set --class ~.model.Goal --fieldName searches --type ~.model.GoalSearch --mappedBy owner --notNull false --cardinality ONE_TO_MANY
+
+entity jpa --class ~.model.PatentInformation --testAutomatically --equals --identifierField id
+field file --fieldName abstractBody --contentType ZIP
+field string --fieldName assignee --sizeMax 255
+field date --fieldName filed --type java.util.Date
+
+entity jpa --class ~.model.PatentBody --testAutomatically --equals --identifierField id
+field file --fieldName body --contentType ZIP
+
+entity jpa --class ~.model.Patent --testAutomatically --equals --identifierField id
+field string --fieldName uspat --notNull --sizeMax 20
+field enum --fieldName status --type ~.model.PatentStatus --notNull
+field set --fieldName cited --type ~.model.Patent --cardinality MANY_TO_MANY
+field reference --fieldName information --type ~.model.PatentInformation --cardinality ONE_TO_ONE 
+field reference --fieldName body --type ~.model.PatentBody --cardinality ONE_TO_ONE 
+
+entity jpa --class ~.model.PatentSummary --testAutomatically --equals --identifierField id
+field string --fieldName uspat --notNull --sizeMax 20
+field enum --fieldName status --type ~.model.PatentStatus --notNull
+field file --fieldName abstractBody --contentType ZIP
+field string --fieldName assignee --sizeMax 255
+field date --fieldName filed --type java.util.Date
+field file --fieldName body --contentType ZIP
+field set --fieldName cited --type ~.model.PatentSummary --cardinality MANY_TO_MANY
+
+finder add --finderName findPatentsByStatus --class ~.model.PatentSummary
+finder add --finderName findPatentsByNumber --class ~.model.PatentSummary
+finder add --finderName findGoalsByName --class ~.model.Goal
+
+web mvc setup
+web mvc all --package ~
+web mvc finder all
+
+logging setup --level INFO
+
+perform tests
+# selenium test --controller ~.GoalController
+
